@@ -12,7 +12,7 @@ import { useState, useEffect } from 'react';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface HeaderProps {
   lang: Locale;

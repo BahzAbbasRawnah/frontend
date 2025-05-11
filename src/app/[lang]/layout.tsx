@@ -9,6 +9,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/components/layout/ThemeProvider';
 import type { Locale } from '@/i18n-config';
 import { getDictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionary';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -20,7 +21,11 @@ const geistSans = Geist({
 //   description: 'Showcasing services, projects, and offering expert programming solutions.',
 // };
 
-export async function generateMetadata({ params: { lang } }: { params: { lang: Locale } }): Promise<Metadata> {
+export async function generateMetadata({ params }: { params: { lang: Locale } }): Promise<Metadata> {
+  // Use Promise.resolve to await the params object
+  const resolvedParams = await Promise.resolve(params);
+  const lang = resolvedParams.lang;
+
   const dictionary = await getDictionary(lang);
   return {
     title: dictionary.siteName + " - Your Programming Partner",
@@ -36,9 +41,13 @@ export default async function RootLayout({
   children: React.ReactNode;
   params: { lang: Locale };
 }>) {
-  const dictionary = await getDictionary(params.lang);
+  // Use Promise.resolve to await the params object
+  const resolvedParams = await Promise.resolve(params);
+  const lang = resolvedParams.lang;
+
+  const dictionary = await getDictionary(lang);
   return (
-    <html lang={params.lang} dir={params.lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
+    <html lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
       <body className={cn(geistSans.variable, "min-h-screen flex flex-col antialiased")}>
         <ThemeProvider
             attribute="class"
@@ -47,11 +56,11 @@ export default async function RootLayout({
             disableTransitionOnChange
         >
           <AuthProvider>
-            <Header lang={params.lang} dictionary={dictionary} />
+            <Header lang={lang} dictionary={dictionary} />
             <main className="flex-grow">
               {children}
             </main>
-            <Footer lang={params.lang} dictionary={dictionary} />
+            <Footer lang={lang} dictionary={dictionary} />
             <Toaster />
           </AuthProvider>
         </ThemeProvider>

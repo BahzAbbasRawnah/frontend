@@ -11,7 +11,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface ThemeToggleProps {
   dictionary: Pick<Dictionary, 'themeToggleLight' | 'themeToggleDark' | 'themeToggleSystem'>;

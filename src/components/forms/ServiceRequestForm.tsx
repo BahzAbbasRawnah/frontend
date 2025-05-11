@@ -19,10 +19,10 @@ import { useToast } from '@/hooks/use-toast';
 import { submitServiceRequest, ServiceRequestInput } from '@/lib/actions';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface ServiceRequestFormProps {
-  dictionary: Pick<Dictionary, 
+  dictionary: Pick<Dictionary,
     'formFullName' | 'formEmailAddress' | 'formCompanyOptional' | 'formProjectDescription' |
     'formProjectDescriptionHint' | 'formBudgetOptional' | 'formTimelineOptional' |
     'formSendRequestButton' | 'formSubmittingButton' |

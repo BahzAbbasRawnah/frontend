@@ -21,8 +21,13 @@ export async function generateMetadata(
   { params }: Props,
   parent: ResolvingMetadata
 ): Promise<Metadata> {
-  const service = sampleServices.find((s) => s.id === params.serviceId);
-  const dictionary = await getDictionary(params.lang);
+  // Use Promise.resolve to await the params object
+  const resolvedParams = await Promise.resolve(params);
+  const lang = resolvedParams.lang;
+  const serviceId = resolvedParams.serviceId;
+
+  const service = sampleServices.find((s) => s.id === serviceId);
+  const dictionary = await getDictionary(lang);
 
   if (!service) {
     return {
@@ -56,8 +61,13 @@ export async function generateStaticParams() {
 
 
 export default async function ServiceDetailPage({ params }: Props) {
-  const service = sampleServices.find((s) => s.id === params.serviceId);
-  const dictionary = await getDictionary(params.lang);
+  // Use Promise.resolve to await the params object
+  const resolvedParams = await Promise.resolve(params);
+  const lang = resolvedParams.lang;
+  const serviceId = resolvedParams.serviceId;
+
+  const service = sampleServices.find((s) => s.id === serviceId);
+  const dictionary = await getDictionary(lang);
 
   if (!service) {
     notFound();
@@ -78,7 +88,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               layout="fill"
               objectFit="cover"
               data-ai-hint={service.imageHint || "technology service detail"}
-              priority 
+              priority
             />
           </div>
           <div className="p-6 md:p-8 flex flex-col justify-center">
@@ -92,7 +102,7 @@ export default async function ServiceDetailPage({ params }: Props) {
               )}
               <CardDescription className="text-lg text-foreground/80">{service.shortDescription}</CardDescription>
             </CardHeader>
-            
+
             <div className="space-y-3 text-sm text-foreground/90">
                 {service.priceModel && (
                     <div className="flex items-center gap-2">
@@ -162,9 +172,9 @@ export default async function ServiceDetailPage({ params }: Props) {
 
             <div>
                 <h3 className="text-xl font-semibold text-primary mb-4">{dictionary.serviceDetailPageRateThisService}</h3>
-                <StarRatingInput 
-                    serviceId={service.id} 
-                    lang={params.lang} 
+                <StarRatingInput
+                    serviceId={service.id}
+                    lang={lang}
                     dictionary={{
                         starRatingInputLoginPrompt: dictionary.starRatingInputLoginPrompt,
                         starRatingInputSubmitButton: dictionary.starRatingInputSubmitButton,

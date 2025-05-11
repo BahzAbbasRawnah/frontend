@@ -1,7 +1,7 @@
 import ProjectCard from '@/components/project/ProjectCard';
 import type { Project } from '@/types'; // Assuming Project type doesn't need translation for now
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 // Sample projects would ideally also be localized if their content (title, desc) needs to change
 const sampleProjects: Project[] = [

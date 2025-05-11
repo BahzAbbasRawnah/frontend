@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { ArrowRight } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface HeroSectionProps {
   lang: Locale;

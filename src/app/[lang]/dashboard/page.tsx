@@ -5,9 +5,13 @@ import Link from 'next/link';
 import { Briefcase, MessageSquare, Bell, Settings, Users, PlusCircle } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
 import { getDictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionary';
 
 
-export default async function DashboardPage({ params: { lang } }: { params: { lang: Locale } }) {
+export default async function DashboardPage({ params }: { params: { lang: Locale } }) {
+  // Use Promise.resolve to await the params object
+  const resolvedParams = await Promise.resolve(params);
+  const lang = resolvedParams.lang;
   const dictionary = await getDictionary(lang);
   const localizedPath = (path: string) => `/${lang}${path}`;
 
@@ -18,7 +22,7 @@ export default async function DashboardPage({ params: { lang } }: { params: { la
             <h1 className="text-4xl font-bold text-primary">{dictionary.dashboardTitle}</h1>
             <p className="text-lg text-muted-foreground mt-1">{dictionary.dashboardWelcome}</p>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Card className="shadow-lg hover:shadow-xl transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">

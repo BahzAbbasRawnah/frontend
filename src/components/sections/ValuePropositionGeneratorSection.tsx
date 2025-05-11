@@ -1,13 +1,13 @@
 import ValuePropositionGeneratorClient from '@/components/ai/ValuePropositionGeneratorClient';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface ValuePropositionGeneratorSectionProps {
   lang: Locale; // lang might not be directly used if client component handles its own text
-  dictionary: Pick<Dictionary, 
-    'valueAIGeneratorTitle' | 
-    'valueAIGeneratorDescription' | 
-    'valueAIGeneratorInputLabel' | 
+  dictionary: Pick<Dictionary,
+    'valueAIGeneratorTitle' |
+    'valueAIGeneratorDescription' |
+    'valueAIGeneratorInputLabel' |
     'valueAIGeneratorInputPlaceholder' |
     'valueAIGeneratorSubmitButton' |
     'valueAIGeneratorGeneratingButton' |

@@ -12,7 +12,7 @@ import {
 import { Languages } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
 import { i18n } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface LanguageSwitcherProps {
   currentLocale: Locale;

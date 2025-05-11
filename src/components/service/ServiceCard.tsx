@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowRight, Star } from 'lucide-react';
 import StarRatingDisplay from '@/components/ui/StarRatingDisplay';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary'; // For the "View Details" text
+import type { Dictionary } from '@/lib/getDictionaryClient'; // For the "View Details" text
 
 
 interface ServiceCardProps {
@@ -38,7 +38,7 @@ export default function ServiceCard({ service, lang, dictionary }: ServiceCardPr
       <CardContent className="flex-grow p-6">
         <CardTitle className="text-xl font-semibold mb-2 text-primary">{service.title}</CardTitle>
         <CardDescription className="text-sm text-foreground/80 mb-4 min-h-[40px] line-clamp-2">{service.shortDescription}</CardDescription>
-        
+
         {service.averageRating && service.numberOfRatings && (
           <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
             <StarRatingDisplay rating={service.averageRating} />
@@ -47,7 +47,7 @@ export default function ServiceCard({ service, lang, dictionary }: ServiceCardPr
         )}
 
         <div className="flex flex-wrap gap-2 mb-4">
-          {service.tags && service.tags.slice(0, 3).map((tag) => ( 
+          {service.tags && service.tags.slice(0, 3).map((tag) => (
             <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
           ))}
         </div>

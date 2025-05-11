@@ -4,16 +4,20 @@ import SignupForm from '@/components/auth/SignupForm';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Github, Loader2 } from 'lucide-react';
+import { Github } from 'lucide-react';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 import GoogleIcon from '@/components/icons/GoogleIcon';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { Locale } from '@/i18n-config';
-import { getDictionary } from '@/lib/getDictionary';
-import type { Dictionary } from '@/lib/getDictionary';
+import { getDictionaryClient } from '@/lib/getDictionaryClient';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
-export default function SignupPage({ params: { lang } }: { params: { lang: Locale } }) {
+// Use a different pattern for client components
+export default function SignupPage(props: { params: { lang: Locale } }) {
+  // Access the lang property directly from props.params
+  const lang = props.params.lang;
   const { user, loading: authLoading, signInWithGoogle, signInWithGitHub } = useAuth();
   const router = useRouter();
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
@@ -22,7 +26,7 @@ export default function SignupPage({ params: { lang } }: { params: { lang: Local
 
   useEffect(() => {
     async function fetchDictionary() {
-      const dict = await getDictionary(lang);
+      const dict = await getDictionaryClient(lang);
       setDictionary(dict);
     }
     fetchDictionary();
@@ -45,13 +49,9 @@ export default function SignupPage({ params: { lang } }: { params: { lang: Local
     await signInWithGitHub(lang);
     setIsGitHubLoading(false);
   };
-  
+
   if (authLoading || !dictionary) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   const localizedPath = (path: string) => `/${lang}${path}`;

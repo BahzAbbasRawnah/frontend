@@ -36,25 +36,38 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
     }
     return i18n.defaultLocale;
   };
-  
+
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    try {
+      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        setUser(currentUser);
+        setLoading(false);
+      });
+      return () => unsubscribe();
+    } catch (error) {
+      console.error('Firebase auth error:', error);
+      // If Firebase auth fails, just set loading to false and continue without auth
       setLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
+      // Show a toast notification about the Firebase configuration issue
+      toast({
+        title: 'Firebase Configuration Error',
+        description: 'Please set up your Firebase credentials in .env.local file.',
+        variant: 'destructive',
+        duration: 10000
+      });
+    }
+  }, [toast]);
 
   const logout = async (currentLang: Locale) => {
     try {
       await firebaseSignOut(auth);
       setUser(null);
       toast({ title: 'Logged Out', description: 'You have been successfully logged out.'});
-      router.push(`/${currentLang}/login`); 
+      router.push(`/${currentLang}/login`);
     } catch (error) {
       console.error('Error signing out:', error);
       toast({ title: 'Logout Failed', description: (error as Error).message, variant: 'destructive' });
-    } 
+    }
   };
 
   const signInWithProvider = async (provider: GoogleAuthProvider | GithubAuthProvider, currentLang: Locale, providerName: string) => {
@@ -81,13 +94,8 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
 
-  if (loading && typeof window !== 'undefined' && !auth.currentUser) { 
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // We'll handle loading state in the components that use this context
+  // This avoids hydration mismatches between server and client
 
   return (
     <AuthContext.Provider value={{ user, loading, logout, signInWithGoogle, signInWithGitHub }}>

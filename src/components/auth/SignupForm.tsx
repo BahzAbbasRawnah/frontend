@@ -13,11 +13,11 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface SignupFormProps {
   lang: Locale;
-  dictionary: Pick<Dictionary, 
+  dictionary: Pick<Dictionary,
     'formEmailAddress' | 'signupPassword' | 'signupConfirmPassword' | 'signupButton' |
     'toastSignupSuccessfulTitle' | 'toastLoginSuccessfulDescription' | // using login redirect desc
     'toastSignupFailedTitle' | 'toastEmailInUse' | 'toastUnexpectedError'

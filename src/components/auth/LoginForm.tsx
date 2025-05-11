@@ -13,13 +13,13 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface LoginFormProps {
   lang: Locale;
-  dictionary: Pick<Dictionary, 
-    'formEmailAddress' | 'signupPassword' | 'loginSignInButton' | 
-    'toastLoginSuccessfulTitle' | 'toastLoginSuccessfulDescription' | 
+  dictionary: Pick<Dictionary,
+    'formEmailAddress' | 'signupPassword' | 'loginSignInButton' |
+    'toastLoginSuccessfulTitle' | 'toastLoginSuccessfulDescription' |
     'toastLoginFailedTitle' | 'toastInvalidEmailPassword' | 'toastUnexpectedError'
   >;
 }

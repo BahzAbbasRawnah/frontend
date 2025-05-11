@@ -10,14 +10,14 @@ import { submitServiceRating, ServiceRatingInput } from '@/lib/actions';
 import { useAuth } from '@/contexts/AuthContext';
 import Link from 'next/link';
 import type { Locale } from '@/i18n-config';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface StarRatingInputProps {
   serviceId: string;
   lang: Locale;
-  dictionary: Pick<Dictionary, 
-    'starRatingInputLoginPrompt' | 
-    'starRatingInputSubmitButton' | 
+  dictionary: Pick<Dictionary,
+    'starRatingInputLoginPrompt' |
+    'starRatingInputSubmitButton' |
     'starRatingInputCommentPlaceholder' |
     'toastAuthRequiredTitle' |
     'toastAuthRequiredDescription' |

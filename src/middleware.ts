@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
   ) {
     return; // Do not apply i18n routing
   }
-  
+
   const pathnameIsMissingLocale = i18n.locales.every(
     (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`
   );
@@ -43,7 +43,7 @@ export const config = {
     // Skip all internal paths (_next) and API routes.
     // Also skip paths that look like static files.
     '/((?!_next|api|.*\\..*).*)',
-    // Optional: only run on root (/) URL
-    // '/', 
+    // Include the root path
+    '/',
   ],
 };

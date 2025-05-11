@@ -8,13 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
-import type { Dictionary } from '@/lib/getDictionary';
+import type { Dictionary } from '@/lib/getDictionaryClient';
 
 interface ValuePropositionGeneratorClientProps {
-  dictionary: Pick<Dictionary, 
-    'valueAIGeneratorTitle' | 
-    'valueAIGeneratorDescription' | 
-    'valueAIGeneratorInputLabel' | 
+  dictionary: Pick<Dictionary,
+    'valueAIGeneratorTitle' |
+    'valueAIGeneratorDescription' |
+    'valueAIGeneratorInputLabel' |
     'valueAIGeneratorInputPlaceholder' |
     'valueAIGeneratorSubmitButton' |
     'valueAIGeneratorGeneratingButton' |
@@ -46,7 +46,7 @@ export default function ValuePropositionGeneratorClient({ dictionary }: ValuePro
     }
 
     setIsLoading(true);
-    setValuePropositions(''); 
+    setValuePropositions('');
 
     try {
       const input: ValuePropGeneratorInput = { technologies };

@@ -4,8 +4,8 @@ import type { ReactNode, FC } from 'react';
 import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
 import type { Locale } from '@/i18n-config';
+import LoadingScreen from '@/components/ui/LoadingScreen';
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -23,11 +23,7 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({ children, lang }) => {
   }, [user, loading, router, lang]);
 
   if (loading || !user) {
-    return (
-      <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   return <>{children}</>;
