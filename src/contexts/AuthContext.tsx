@@ -1,8 +1,9 @@
+
 'use client';
 
 import type { ReactNode, FC } from 'react';
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { User } from 'firebase/auth';
+import type { User, UserMetadata, IdTokenResult } from 'firebase/auth';
 import { onAuthStateChanged, signOut as firebaseSignOut, GoogleAuthProvider, GithubAuthProvider, signInWithPopup } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { useRouter, usePathname } from 'next/navigation'; // usePathname to get current locale
@@ -26,7 +27,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); //  e.g. /en/dashboard
+  const pathname = usePathname(); 
   const { toast } = useToast();
 
   const getCurrentLocaleFromPathname = (): Locale => {
@@ -38,27 +39,107 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   useEffect(() => {
+    let unsubscribe: (() => void) | undefined;
     try {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser);
+      unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+        if (process.env.NEXT_PUBLIC_TEST_MODE === 'true' && !currentUser) {
+          console.warn("TEST MODE ACTIVE: Simulating admin user login.");
+          const mockUser: User = {
+            uid: 'test-admin-uid',
+            email: 'admin@gmail.com',
+            displayName: 'Admin (Test Mode)',
+            photoURL: null,
+            emailVerified: true,
+            isAnonymous: false,
+            metadata: {
+              creationTime: new Date().toISOString(),
+              lastSignInTime: new Date().toISOString(),
+            } as UserMetadata,
+            providerData: [],
+            providerId: 'test-mode',
+            refreshToken: 'mock-refresh-token',
+            tenantId: null,
+            delete: async () => { console.log('Mock user delete called'); },
+            getIdToken: async (_forceRefresh?: boolean) => 'mock-id-token',
+            getIdTokenResult: async (_forceRefresh?: boolean) => ({
+              token: 'mock-id-token',
+              expirationTime: new Date(Date.now() + 3600 * 1000).toISOString(),
+              authTime: new Date().toISOString(),
+              issuedAtTime: new Date().toISOString(),
+              signInProvider: null,
+              signInSecondFactor: null,
+              claims: { app_role: 'admin' }, // Example custom claim
+            } as IdTokenResult),
+            reload: async () => { console.log('Mock user reload called'); },
+            toJSON: () => ({ uid: 'test-admin-uid', email: 'admin@gmail.com', displayName: 'Admin (Test Mode)' }),
+          };
+          setUser(mockUser);
+        } else {
+          setUser(currentUser);
+        }
         setLoading(false);
       });
-      return () => unsubscribe();
     } catch (error) {
-      console.error('Firebase auth error:', error);
+      console.error('Firebase auth initialization or onAuthStateChanged error:', error);
       // If Firebase auth fails, just set loading to false and continue without auth
+      // but first check if test mode should activate a mock user
+      if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+          console.warn("TEST MODE ACTIVE (Firebase init failed): Simulating admin user login.");
+          const mockUser: User = { // Define mock user again for this specific catch path
+            uid: 'test-admin-uid-fallback',
+            email: 'admin@gmail.com',
+            displayName: 'Admin (Test Mode - FB Fail)',
+            photoURL: null,
+            emailVerified: true,
+            isAnonymous: false,
+            metadata: { creationTime: new Date().toISOString(), lastSignInTime: new Date().toISOString() } as UserMetadata,
+            providerData: [],
+            providerId: 'test-mode-fallback',
+            refreshToken: 'mock-refresh-token-fallback',
+            tenantId: null,
+            delete: async () => { console.log('Mock user delete called (FB Fail)'); },
+            getIdToken: async (_forceRefresh?: boolean) => 'mock-id-token-fallback',
+            getIdTokenResult: async (_forceRefresh?: boolean) => ({
+              token: 'mock-id-token-fallback',
+              expirationTime: new Date(Date.now() + 3600 * 1000).toISOString(),
+              authTime: new Date().toISOString(),
+              issuedAtTime: new Date().toISOString(),
+              signInProvider: null,
+              signInSecondFactor: null,
+              claims: { app_role: 'admin' },
+            } as IdTokenResult),
+            reload: async () => { console.log('Mock user reload called (FB Fail)'); },
+            toJSON: () => ({ uid: 'test-admin-uid-fallback', email: 'admin@gmail.com', displayName: 'Admin (Test Mode - FB Fail)' }),
+          };
+          setUser(mockUser);
+      } else {
+        setUser(null); // Ensure user is null if not in test mode and Firebase fails
+      }
       setLoading(false);
-      // Show a toast notification about the Firebase configuration issue
-      toast({
-        title: 'Firebase Configuration Error',
-        description: 'Please set up your Firebase credentials in .env.local file.',
-        variant: 'destructive',
-        duration: 10000
-      });
+      if (firebaseConfig.apiKey === "placeholder-api-key") { // Only show toast if placeholder config is used
+        toast({
+          title: 'Firebase Configuration Error',
+          description: 'Please set up your Firebase credentials in .env.local file to use actual authentication. Test mode can be enabled with NEXT_PUBLIC_TEST_MODE=true for design testing.',
+          variant: 'destructive',
+          duration: 10000
+        });
+      }
     }
-  }, [toast]);
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
+  }, [toast]); // pathname removed as getCurrentLocaleFromPathname is not used in useEffect directly
 
   const logout = async (currentLang: Locale) => {
+    if (process.env.NEXT_PUBLIC_TEST_MODE === 'true' && user?.providerId.includes('test-mode')) {
+      console.warn("TEST MODE ACTIVE: Simulating logout.");
+      setUser(null);
+      toast({ title: 'Logged Out (Test Mode)', description: 'You have been successfully logged out.'});
+      router.push(`/${currentLang}/login`);
+      return;
+    }
     try {
       await firebaseSignOut(auth);
       setUser(null);
@@ -71,6 +152,16 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   };
 
   const signInWithProvider = async (provider: GoogleAuthProvider | GithubAuthProvider, currentLang: Locale, providerName: string) => {
+    if (process.env.NEXT_PUBLIC_TEST_MODE === 'true') {
+       console.warn(`TEST MODE ACTIVE: Simulating ${providerName} sign-in. Actual sign-in skipped.`);
+       // The useEffect with onAuthStateChanged will handle setting the mock user if no real user is found.
+       // We can trigger a state change to ensure loading completes and protected routes are checked again.
+       setLoading(true); 
+       setTimeout(() => setLoading(false), 100); // Simulate async operation
+       toast({ title: `Signed in with ${providerName} (Test Mode - Skipped)` });
+       // Let ProtectedRoute handle redirection based on the mock user potentially set by onAuthStateChanged
+       return;
+    }
     try {
       await signInWithPopup(auth, provider);
       toast({ title: `Signed in with ${providerName} successfully!` });
@@ -92,10 +183,6 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const signInWithGitHub = async (currentLang: Locale) => {
     await signInWithProvider(new GithubAuthProvider(), currentLang, 'GitHub');
   };
-
-
-  // We'll handle loading state in the components that use this context
-  // This avoids hydration mismatches between server and client
 
   return (
     <AuthContext.Provider value={{ user, loading, logout, signInWithGoogle, signInWithGitHub }}>
