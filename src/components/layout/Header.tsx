@@ -1,9 +1,10 @@
-'use client'; 
+
+'use client';
 
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { Menu, CodeXml, LogOut, UserCircle, LayoutDashboard, Loader2, Briefcase } from 'lucide-react'; 
+import { Menu, CodeXml, LogOut, UserCircle, LayoutDashboard, Loader2, Briefcase } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -15,8 +16,8 @@ import type { Dictionary } from '@/lib/getDictionary';
 
 interface HeaderProps {
   lang: Locale;
-  dictionary: Pick<Dictionary, 
-    'siteName' | 'navServices' | 'navProjects' | 'navValueAI' | 'navContact' | 
+  dictionary: Pick<Dictionary,
+    'siteName' | 'navServices' | 'navProjects' | 'navValueAI' | 'navContact' |
     'navDashboard' | 'navLogin' | 'navSignup' | 'navLogout' | 'requestServiceButton' |
     'themeToggleLight' | 'themeToggleDark' | 'themeToggleSystem' | 'language' | 'english' | 'arabic'
   >;
@@ -25,11 +26,12 @@ interface HeaderProps {
 
 export default function Header({ lang, dictionary }: HeaderProps) {
   const { user, loading, logout } = useAuth();
-  const pathname = usePathname(); // This will include the locale, e.g., /en/about
+  const pathname = usePathname();
   const [currentHash, setCurrentHash] = useState('');
+  const [isClient, setIsClient] = useState(false);
 
   const baseNavItems = [
-    { href: '/services', labelKey: 'navServices', icon: Briefcase }, 
+    { href: '/services', labelKey: 'navServices', icon: Briefcase },
     { href: '/#projects', labelKey: 'navProjects' },
     { href: '/#value-ai', labelKey: 'navValueAI' },
     { href: '/#contact', labelKey: 'navContact' },
@@ -37,47 +39,40 @@ export default function Header({ lang, dictionary }: HeaderProps) {
 
 
   useEffect(() => {
+    setIsClient(true);
     const updateHash = () => {
-      if (typeof window !== 'undefined') {
-        setCurrentHash(window.location.hash);
-      }
+      setCurrentHash(window.location.hash);
     };
 
-    updateHash(); 
-
-    window.addEventListener('hashchange', updateHash);
-    return () => {
-      window.removeEventListener('hashchange', updateHash);
-    };
-  }, []); // Pathname is not needed here as hash is independent
+    if (typeof window !== 'undefined') {
+      updateHash();
+      window.addEventListener('hashchange', updateHash);
+      return () => {
+        window.removeEventListener('hashchange', updateHash);
+      };
+    }
+  }, []);
 
   const navItems = user
     ? [{ href: '/dashboard', labelKey: 'navDashboard', icon: LayoutDashboard }, ...baseNavItems]
     : baseNavItems;
 
   const getLocalizedPath = (path: string) => {
-    if (path.startsWith('/#')) { // For hash links on the current locale's home page
+    if (path.startsWith('/#')) {
       return `/${lang}${path}`;
     }
     return `/${lang}${path}`;
   };
-  
-  // Pathname includes locale, e.g. /en/services. Item href is /services
+
   const isLinkActive = (itemHref: string) => {
+    if (!isClient) return false; // Prevent running on server if it depends on client-only state
+
     const localizedItemHref = getLocalizedPath(itemHref);
     if (itemHref.includes('#')) {
-      // For hash links, check if the base path matches and then if the hash matches
       const [basePath, hash] = localizedItemHref.split('#');
-      // Pathname example: /en/ or /en/#projects
-      // BasePath example: /en/ or /en/#projects
-      
-      // If pathname is just /en or /ar (homepage) and itemHref is /en/#something
       if ((pathname === `/${lang}` || pathname === `/${lang}/`) && itemHref.startsWith('/#')) {
          return currentHash === `#${hash}`;
       }
-      // If pathname is /en/somepage and itemHref is /en/#something, this should not be active
-      // unless current page is homepage.
-      // Check if pathname (without hash) matches basePath and then compare hash.
       return pathname.split('#')[0] === basePath && (hash ? currentHash === `#${hash}` : true);
     }
     return pathname === localizedItemHref;
@@ -91,12 +86,12 @@ export default function Header({ lang, dictionary }: HeaderProps) {
           <CodeXml className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold text-primary">{dictionary.siteName}</span>
         </Link>
-        
+
         <nav className="hidden md:flex items-center gap-1">
           {navItems.map((item) => (
-            <Button 
-              key={item.labelKey} 
-              variant={isLinkActive(item.href) ? "secondary" : "ghost"} 
+            <Button
+              key={item.labelKey}
+              variant={isLinkActive(item.href) ? "secondary" : "ghost"}
               asChild
             >
               <Link href={getLocalizedPath(item.href)} className="flex items-center gap-2 px-3 py-2">
@@ -127,7 +122,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
               </Button>
             </>
           )}
-           {!user && ( 
+           {!user && (
              <Button asChild className="ml-2 bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link href={getLocalizedPath('/#service-request')}>{dictionary.requestServiceButton}</Link>
             </Button>
@@ -155,9 +150,9 @@ export default function Header({ lang, dictionary }: HeaderProps) {
             <nav className="flex flex-col gap-2">
               {navItems.map((item) => (
                  <SheetClose asChild key={item.labelKey}>
-                    <Button 
-                      variant={isLinkActive(item.href) ? "secondary" : "ghost"} 
-                      asChild 
+                    <Button
+                      variant={isLinkActive(item.href) ? "secondary" : "ghost"}
+                      asChild
                       className="justify-start text-lg w-full"
                     >
                       <Link href={getLocalizedPath(item.href)} className="flex items-center gap-3 py-3 px-2">
