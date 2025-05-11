@@ -260,29 +260,58 @@ const Sidebar = React.forwardRef<
 Sidebar.displayName = "Sidebar"
 
 const SidebarTrigger = React.forwardRef<
-  React.ElementRef<typeof Button>,
+  HTMLButtonElement,
   React.ComponentProps<typeof Button>
->(({ className, onClick, ...props }, ref) => {
-  const { toggleSidebar } = useSidebar()
+>(({
+  className,
+  onClick: propOnClick,
+  children,
+  asChild, // Destructure asChild
+  variant,  // Destructure variant
+  size,     // Destructure size
+  ...restProps // Remaining props
+}, ref) => {
+  const { toggleSidebar } = useSidebar();
 
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    propOnClick?.(event);
+    toggleSidebar();
+  };
+
+  if (asChild && React.isValidElement(children)) {
+    // `asChild` is consumed here.
+    // `variant` and `size` are not relevant for Slot itself; they are on the child Button.
+    // `className` from <SidebarTrigger> usage is passed to Slot.
+    // `restProps` are any other attributes on <SidebarTrigger> (e.g., data-*, aria-*).
+    return (
+      <Slot
+        ref={ref}
+        onClick={handleClick}
+        className={className} // className from <SidebarTrigger>
+        {...restProps}    // other attributes from <SidebarTrigger> to be passed to child
+      >
+        {children}
+      </Slot>
+    );
+  }
+
+  // Default rendering: render an internal Button.
+  // Use variant/size if provided on <SidebarTrigger>, else default.
   return (
     <Button
       ref={ref}
       data-sidebar="trigger"
-      variant="ghost"
-      size="icon"
-      className={cn("h-7 w-7", className)}
-      onClick={(event) => {
-        onClick?.(event)
-        toggleSidebar()
-      }}
-      {...props}
+      variant={variant || "ghost"} // Use passed variant or default "ghost"
+      size={size || "icon"}       // Use passed size or default "icon"
+      className={cn("h-7 w-7", className)} // Default classes + className from <SidebarTrigger>
+      onClick={handleClick}
+      {...restProps} // Pass other attributes. asChild is not in restProps or is false.
     >
       <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
-  )
-})
+  );
+});
 SidebarTrigger.displayName = "SidebarTrigger"
 
 const SidebarRail = React.forwardRef<
