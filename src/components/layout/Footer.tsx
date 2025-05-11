@@ -1,6 +1,13 @@
-import { CodeXml } from 'lucide-react'; // Changed Code to CodeXml for a more specific icon
+import { CodeXml } from 'lucide-react';
+import type { Locale } from '@/i18n-config';
+import type { Dictionary } from '@/lib/getDictionary';
 
-export default function Footer() {
+interface FooterProps {
+  lang: Locale;
+  dictionary: Pick<Dictionary, 'footerCopyright' | 'footerBuiltWith'>;
+}
+
+export default function Footer({ lang, dictionary }: FooterProps) {
   const currentYear = new Date().getFullYear();
   return (
     <footer className="border-t border-border/40 bg-background/95">
@@ -8,11 +15,11 @@ export default function Footer() {
         <div className="flex items-center gap-2">
           <CodeXml className="h-5 w-5 text-muted-foreground" />
           <p className="text-sm text-muted-foreground">
-            &copy; {currentYear} CodeCanvas. All rights reserved.
+            {dictionary.footerCopyright.replace('{year}', currentYear.toString())}
           </p>
         </div>
         <p className="text-sm text-muted-foreground">
-          Built with Next.js and Tailwind CSS.
+          {dictionary.footerBuiltWith}
         </p>
       </div>
     </footer>

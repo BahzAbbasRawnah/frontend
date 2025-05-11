@@ -19,6 +19,16 @@ import { useToast } from '@/hooks/use-toast';
 import { submitServiceRequest, ServiceRequestInput } from '@/lib/actions';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
+import type { Dictionary } from '@/lib/getDictionary';
+
+interface ServiceRequestFormProps {
+  dictionary: Pick<Dictionary, 
+    'formFullName' | 'formEmailAddress' | 'formCompanyOptional' | 'formProjectDescription' |
+    'formProjectDescriptionHint' | 'formBudgetOptional' | 'formTimelineOptional' |
+    'formSendRequestButton' | 'formSubmittingButton' |
+    'toastRequestSubmittedTitle' | 'toastSubmissionFailedTitle' | 'toastUnexpectedError'
+  >;
+}
 
 const formSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -29,7 +39,7 @@ const formSchema = z.object({
   timeline: z.string().optional(),
 });
 
-export default function ServiceRequestForm() {
+export default function ServiceRequestForm({ dictionary }: ServiceRequestFormProps) {
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,22 +61,21 @@ export default function ServiceRequestForm() {
       const result = await submitServiceRequest(values);
       if (result.success) {
         toast({
-          title: 'Request Submitted!',
-          description: result.message,
+          title: dictionary.toastRequestSubmittedTitle,
+          description: result.message, // Message from action can be translated there or be generic
         });
         form.reset();
       } else {
         toast({
-          title: 'Submission Failed',
-          description: result.message || 'An error occurred. Please try again.',
+          title: dictionary.toastSubmissionFailedTitle,
+          description: result.message || dictionary.toastUnexpectedError,
           variant: 'destructive',
         });
-        // For field-specific errors, you could use form.setError here if your action returned them in a structured way.
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'An unexpected error occurred. Please try again later.',
+        title: dictionary.toastErrorTitle || "Error", // Fallback if not in picked dictionary
+        description: dictionary.toastUnexpectedError,
         variant: 'destructive',
       });
     } finally {
@@ -83,7 +92,7 @@ export default function ServiceRequestForm() {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Full Name</FormLabel>
+                <FormLabel>{dictionary.formFullName}</FormLabel>
                 <FormControl>
                   <Input placeholder="John Doe" {...field} />
                 </FormControl>
@@ -96,7 +105,7 @@ export default function ServiceRequestForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Email Address</FormLabel>
+                <FormLabel>{dictionary.formEmailAddress}</FormLabel>
                 <FormControl>
                   <Input type="email" placeholder="you@example.com" {...field} />
                 </FormControl>
@@ -110,7 +119,7 @@ export default function ServiceRequestForm() {
           name="company"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Company (Optional)</FormLabel>
+              <FormLabel>{dictionary.formCompanyOptional}</FormLabel>
               <FormControl>
                 <Input placeholder="Your Company Inc." {...field} />
               </FormControl>
@@ -123,7 +132,7 @@ export default function ServiceRequestForm() {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Project Description</FormLabel>
+              <FormLabel>{dictionary.formProjectDescription}</FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Tell us about your project requirements, goals, and any specific features you need..."
@@ -132,7 +141,7 @@ export default function ServiceRequestForm() {
                 />
               </FormControl>
               <FormDescription>
-                Provide as much detail as possible.
+                {dictionary.formProjectDescriptionHint}
               </FormDescription>
               <FormMessage />
             </FormItem>
@@ -144,7 +153,7 @@ export default function ServiceRequestForm() {
             name="budget"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Estimated Budget (Optional)</FormLabel>
+                <FormLabel>{dictionary.formBudgetOptional}</FormLabel>
                 <FormControl>
                   <Input placeholder="$5,000 - $10,000" {...field} />
                 </FormControl>
@@ -157,7 +166,7 @@ export default function ServiceRequestForm() {
             name="timeline"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Expected Timeline (Optional)</FormLabel>
+                <FormLabel>{dictionary.formTimelineOptional}</FormLabel>
                 <FormControl>
                   <Input placeholder="e.g., 3-6 months" {...field} />
                 </FormControl>
@@ -169,11 +178,11 @@ export default function ServiceRequestForm() {
         <Button type="submit" className="w-full md:w-auto bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
+              <Loader2 className="mr-2 rtl:ml-2 h-4 w-4 animate-spin" />
+              {dictionary.formSubmittingButton}
             </>
           ) : (
-            'Send Request'
+            dictionary.formSendRequestButton
           )}
         </Button>
       </form>

@@ -9,10 +9,22 @@ import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label'; // Corrected: FormLabel is part of a Form context, use Label directly
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserPlus } from 'lucide-react';
+import type { Locale } from '@/i18n-config';
+import type { Dictionary } from '@/lib/getDictionary';
 
+interface SignupFormProps {
+  lang: Locale;
+  dictionary: Pick<Dictionary, 
+    'formEmailAddress' | 'signupPassword' | 'signupConfirmPassword' | 'signupButton' |
+    'toastSignupSuccessfulTitle' | 'toastLoginSuccessfulDescription' | // using login redirect desc
+    'toastSignupFailedTitle' | 'toastEmailInUse' | 'toastUnexpectedError'
+  >;
+}
+
+// These messages from zod would ideally be translated too if the schema is built dynamically
 const signupSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
@@ -24,7 +36,7 @@ const signupSchema = z.object({
 
 type SignupFormInputs = z.infer<typeof signupSchema>;
 
-export default function SignupForm() {
+export default function SignupForm({ lang, dictionary }: SignupFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -40,18 +52,16 @@ export default function SignupForm() {
     setIsLoading(true);
     try {
       await createUserWithEmailAndPassword(auth, data.email, data.password);
-      toast({ title: 'Signup Successful', description: 'Redirecting to dashboard...' });
-      router.push('/dashboard');
+      toast({ title: dictionary.toastSignupSuccessfulTitle, description: dictionary.toastLoginSuccessfulDescription });
+      router.push(`/${lang}/dashboard`);
     } catch (error: any) {
       console.error('Signup error:', error);
-       let errorMessage = 'An unexpected error occurred.';
+       let errorMessage = dictionary.toastUnexpectedError;
       if (error.code === 'auth/email-already-in-use') {
-        errorMessage = 'This email address is already in use.';
-      } else if (error.message) {
-        errorMessage = error.message;
+        errorMessage = dictionary.toastEmailInUse;
       }
       toast({
-        title: 'Signup Failed',
+        title: dictionary.toastSignupFailedTitle,
         description: errorMessage,
         variant: 'destructive',
       });
@@ -63,7 +73,7 @@ export default function SignupForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <Label htmlFor="email-signup">Email Address</Label> {/* Changed ID to avoid conflict if on same page as login */}
+        <Label htmlFor="email-signup">{dictionary.formEmailAddress}</Label>
         <Input
           id="email-signup"
           type="email"
@@ -77,7 +87,7 @@ export default function SignupForm() {
       </div>
 
       <div>
-        <Label htmlFor="password-signup">Password</Label> {/* Changed ID */}
+        <Label htmlFor="password-signup">{dictionary.signupPassword}</Label>
         <Input
           id="password-signup"
           type="password"
@@ -91,7 +101,7 @@ export default function SignupForm() {
       </div>
 
       <div>
-        <Label htmlFor="confirmPassword">Confirm Password</Label>
+        <Label htmlFor="confirmPassword">{dictionary.signupConfirmPassword}</Label>
         <Input
           id="confirmPassword"
           type="password"
@@ -110,7 +120,7 @@ export default function SignupForm() {
         ) : (
           <UserPlus className="mr-2 h-4 w-4" />
         )}
-        Sign Up
+        {dictionary.signupButton}
       </Button>
     </form>
   );

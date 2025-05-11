@@ -9,18 +9,29 @@ import { auth } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label'; // Corrected: FormLabel is part of a Form context, use Label directly
+import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, LogIn } from 'lucide-react';
+import type { Locale } from '@/i18n-config';
+import type { Dictionary } from '@/lib/getDictionary';
+
+interface LoginFormProps {
+  lang: Locale;
+  dictionary: Pick<Dictionary, 
+    'formEmailAddress' | 'signupPassword' | 'loginSignInButton' | 
+    'toastLoginSuccessfulTitle' | 'toastLoginSuccessfulDescription' | 
+    'toastLoginFailedTitle' | 'toastInvalidEmailPassword' | 'toastUnexpectedError'
+  >;
+}
 
 const loginSchema = z.object({
-  email: z.string().email({ message: 'Invalid email address.' }),
+  email: z.string().email({ message: 'Invalid email address.' }), // This message could be translated too if schema is lang-dependent
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
 type LoginFormInputs = z.infer<typeof loginSchema>;
 
-export default function LoginForm() {
+export default function LoginForm({ lang, dictionary }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -36,18 +47,19 @@ export default function LoginForm() {
     setIsLoading(true);
     try {
       await signInWithEmailAndPassword(auth, data.email, data.password);
-      toast({ title: 'Login Successful', description: 'Redirecting to dashboard...' });
-      router.push('/dashboard');
+      toast({ title: dictionary.toastLoginSuccessfulTitle, description: dictionary.toastLoginSuccessfulDescription });
+      router.push(`/${lang}/dashboard`);
     } catch (error: any) {
       console.error('Login error:', error);
-      let errorMessage = 'An unexpected error occurred.';
+      let errorMessage = dictionary.toastUnexpectedError;
       if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        errorMessage = 'Invalid email or password.';
+        errorMessage = dictionary.toastInvalidEmailPassword;
       } else if (error.message) {
-        errorMessage = error.message;
+        // Firebase often provides localized messages, but we might prefer our own for consistency
+        // For now, let's use our generic one if it's not a known code.
       }
       toast({
-        title: 'Login Failed',
+        title: dictionary.toastLoginFailedTitle,
         description: errorMessage,
         variant: 'destructive',
       });
@@ -59,7 +71,7 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <div>
-        <Label htmlFor="email">Email Address</Label>
+        <Label htmlFor="email">{dictionary.formEmailAddress}</Label>
         <Input
           id="email"
           type="email"
@@ -73,7 +85,7 @@ export default function LoginForm() {
       </div>
 
       <div>
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password">{dictionary.signupPassword}</Label>
         <Input
           id="password"
           type="password"
@@ -92,7 +104,7 @@ export default function LoginForm() {
         ) : (
           <LogIn className="mr-2 h-4 w-4" />
         )}
-        Sign In
+        {dictionary.loginSignInButton}
       </Button>
     </form>
   );

@@ -5,23 +5,23 @@ import { useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
+import type { Locale } from '@/i18n-config';
 
 interface ProtectedRouteProps {
   children: ReactNode;
+  lang: Locale; // Add lang prop
 }
 
-const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
+const ProtectedRoute: FC<ProtectedRouteProps> = ({ children, lang }) => {
   const { user, loading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // Only redirect if loading is false and there's no user.
     if (!loading && !user) {
-      router.push('/login');
+      router.push(`/${lang}/login`); // Use lang for redirect
     }
-  }, [user, loading, router]);
+  }, [user, loading, router, lang]);
 
-  // While loading, or if there's no user (and redirection hasn't happened yet), show loader.
   if (loading || !user) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-14rem)] bg-background">
@@ -30,7 +30,6 @@ const ProtectedRoute: FC<ProtectedRouteProps> = ({ children }) => {
     );
   }
 
-  // If user is authenticated, render the children.
   return <>{children}</>;
 };
 

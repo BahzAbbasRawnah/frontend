@@ -5,12 +5,19 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ExternalLink, Github } from 'lucide-react';
+import type { Locale } from '@/i18n-config';
 
 interface ProjectCardProps {
   project: Project;
+  lang: Locale; // Add lang prop
 }
 
-export default function ProjectCard({ project }: ProjectCardProps) {
+export default function ProjectCard({ project, lang }: ProjectCardProps) {
+  // Project title and description would ideally come from a translated source if they need localization
+  // For now, using static values. Localized links are not directly needed here unless demo/github were /lang/ specific.
+  // If liveDemoUrl or githubUrl were internal paths, they'd need `/${lang}` prefix.
+  // Since they are external or placeholder '#', no change to link generation needed for now.
+
   return (
     <Card className="flex flex-col h-full overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-lg">
       <CardHeader className="p-0">
@@ -39,14 +46,14 @@ export default function ProjectCard({ project }: ProjectCardProps) {
           {project.liveDemoUrl && (
             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
               <Link href={project.liveDemoUrl} target="_blank" rel="noopener noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" /> Live Demo
+                <ExternalLink className="me-2 h-4 w-4" /> Live Demo 
               </Link>
             </Button>
           )}
           {project.githubUrl && (
             <Button variant="outline" size="sm" asChild className="flex-1 sm:flex-none">
               <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
-                <Github className="mr-2 h-4 w-4" /> GitHub
+                <Github className="me-2 h-4 w-4" /> GitHub
               </Link>
             </Button>
           )}

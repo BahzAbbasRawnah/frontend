@@ -8,8 +8,27 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, Sparkles } from 'lucide-react';
+import type { Dictionary } from '@/lib/getDictionary';
 
-export default function ValuePropositionGeneratorClient() {
+interface ValuePropositionGeneratorClientProps {
+  dictionary: Pick<Dictionary, 
+    'valueAIGeneratorTitle' | 
+    'valueAIGeneratorDescription' | 
+    'valueAIGeneratorInputLabel' | 
+    'valueAIGeneratorInputPlaceholder' |
+    'valueAIGeneratorSubmitButton' |
+    'valueAIGeneratorGeneratingButton' |
+    'valueAIGeneratedPropositionsTitle' |
+    'toastInputRequiredTitle' |
+    'toastInputRequiredDescription' |
+    'toastSuccessTitle' |
+    'toastValuePropositionsGenerated' |
+    'toastErrorTitle' |
+    'toastFailedToGeneratePropositions'
+  >;
+}
+
+export default function ValuePropositionGeneratorClient({ dictionary }: ValuePropositionGeneratorClientProps) {
   const [technologies, setTechnologies] = useState('');
   const [valuePropositions, setValuePropositions] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -19,15 +38,15 @@ export default function ValuePropositionGeneratorClient() {
     e.preventDefault();
     if (!technologies.trim()) {
       toast({
-        title: 'Input Required',
-        description: 'Please enter some technologies.',
+        title: dictionary.toastInputRequiredTitle,
+        description: dictionary.toastInputRequiredDescription,
         variant: 'destructive',
       });
       return;
     }
 
     setIsLoading(true);
-    setValuePropositions(''); // Clear previous results
+    setValuePropositions(''); 
 
     try {
       const input: ValuePropGeneratorInput = { technologies };
@@ -35,8 +54,8 @@ export default function ValuePropositionGeneratorClient() {
       if (result && result.valuePropositions) {
         setValuePropositions(result.valuePropositions);
         toast({
-          title: 'Success!',
-          description: 'Value propositions generated.',
+          title: dictionary.toastSuccessTitle,
+          description: dictionary.toastValuePropositionsGenerated,
         });
       } else {
         throw new Error('No propositions returned from AI.');
@@ -44,8 +63,8 @@ export default function ValuePropositionGeneratorClient() {
     } catch (error) {
       console.error('Error generating value propositions:', error);
       toast({
-        title: 'Error',
-        description: (error as Error).message || 'Failed to generate value propositions. Please try again.',
+        title: dictionary.toastErrorTitle,
+        description: (error as Error).message || dictionary.toastFailedToGeneratePropositions,
         variant: 'destructive',
       });
     } finally {
@@ -58,24 +77,24 @@ export default function ValuePropositionGeneratorClient() {
       <CardHeader>
         <div className="flex items-center gap-2">
           <Sparkles className="h-6 w-6 text-accent" />
-          <CardTitle className="text-2xl font-semibold text-primary">AI Value Proposition Generator</CardTitle>
+          <CardTitle className="text-2xl font-semibold text-primary">{dictionary.valueAIGeneratorTitle}</CardTitle>
         </div>
         <CardDescription>
-          Enter technologies used in your project idea to see why clients might prefer your team.
+          {dictionary.valueAIGeneratorDescription}
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label htmlFor="technologies" className="block text-sm font-medium text-foreground mb-1">
-              Technologies (comma-separated)
+              {dictionary.valueAIGeneratorInputLabel}
             </label>
             <Input
               id="technologies"
               type="text"
               value={technologies}
               onChange={(e) => setTechnologies(e.target.value)}
-              placeholder="e.g., React, Next.js, Python, Docker"
+              placeholder={dictionary.valueAIGeneratorInputPlaceholder}
               className="w-full"
               disabled={isLoading}
             />
@@ -83,13 +102,13 @@ export default function ValuePropositionGeneratorClient() {
           <Button type="submit" className="w-full md:w-auto bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Generating...
+                <Loader2 className="mr-2 rtl:ml-2 h-4 w-4 animate-spin" />
+                {dictionary.valueAIGeneratorGeneratingButton}
               </>
             ) : (
               <>
-                <Sparkles className="mr-2 h-4 w-4" />
-                Generate Propositions
+                <Sparkles className="mr-2 rtl:ml-2 h-4 w-4" />
+                {dictionary.valueAIGeneratorSubmitButton}
               </>
             )}
           </Button>
@@ -97,7 +116,7 @@ export default function ValuePropositionGeneratorClient() {
 
         {valuePropositions && (
           <div className="mt-8 p-6 border border-border rounded-md bg-secondary/30">
-            <h3 className="text-lg font-semibold mb-2 text-primary">Generated Value Propositions:</h3>
+            <h3 className="text-lg font-semibold mb-2 text-primary">{dictionary.valueAIGeneratedPropositionsTitle}</h3>
             <Textarea
               readOnly
               value={valuePropositions}
