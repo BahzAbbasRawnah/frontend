@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { Menu, CodeXml, LogOut, UserCircle, LayoutDashboard, Loader2, Briefcase } from 'lucide-react';
+import { Menu, CodeXml, LogOut, UserCircle, LayoutDashboard, Loader2, Briefcase, Info } from 'lucide-react'; // Added Info icon
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -17,7 +17,7 @@ import type { Dictionary } from '@/lib/getDictionaryClient';
 interface HeaderProps {
   lang: Locale;
   dictionary: Pick<Dictionary,
-    'siteName' | 'navServices' | 'navProjects' | 'navValueAI' | 'navContact' |
+    'siteName' | 'navServices' | 'navProjects' | 'navValueAI' | 'navContact' | 'navAboutUs' | // Added navAboutUs
     'navDashboard' | 'navLogin' | 'navSignup' | 'navLogout' | 'requestServiceButton' |
     'themeToggleLight' | 'themeToggleDark' | 'themeToggleSystem' | 'language' | 'english' | 'arabic'
   >;
@@ -34,6 +34,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
     { href: '/services', labelKey: 'navServices', icon: Briefcase },
     { href: '/#projects', labelKey: 'navProjects' },
     { href: '/#value-ai', labelKey: 'navValueAI' },
+    { href: '/about', labelKey: 'navAboutUs', icon: Info }, // Added About Us link
     { href: '/#contact', labelKey: 'navContact' },
   ];
 
@@ -70,6 +71,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
     const localizedItemHref = getLocalizedPath(itemHref);
     if (itemHref.includes('#')) {
       const [basePath, hash] = localizedItemHref.split('#');
+      // For homepage hash links, pathname might be just /en or /en/
       if ((pathname === `/${lang}` || pathname === `/${lang}/`) && itemHref.startsWith('/#')) {
          return currentHash === `#${hash}`;
       }
@@ -207,3 +209,4 @@ export default function Header({ lang, dictionary }: HeaderProps) {
     </header>
   );
 }
+
