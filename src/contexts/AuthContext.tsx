@@ -23,11 +23,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Retrieve Firebase config from environment variables
+const firebaseConfig = {
+      apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+      authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+      storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+      measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+    };
+
 export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname(); 
+  const pathname = usePathname();
   const { toast } = useToast();
 
   const getCurrentLocaleFromPathname = (): Locale => {
@@ -49,6 +60,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
             email: 'admin@gmail.com',
             displayName: 'Admin (Test Mode)',
             photoURL: null,
+            phoneNumber: null, // Added missing property
             emailVerified: true,
             isAnonymous: false,
             metadata: {
@@ -90,6 +102,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
             email: 'admin@gmail.com',
             displayName: 'Admin (Test Mode - FB Fail)',
             photoURL: null,
+            phoneNumber: null, // Added missing property
             emailVerified: true,
             isAnonymous: false,
             metadata: { creationTime: new Date().toISOString(), lastSignInTime: new Date().toISOString() } as UserMetadata,
@@ -156,7 +169,7 @@ export const AuthProvider: FC<{ children: ReactNode }> = ({ children }) => {
        console.warn(`TEST MODE ACTIVE: Simulating ${providerName} sign-in. Actual sign-in skipped.`);
        // The useEffect with onAuthStateChanged will handle setting the mock user if no real user is found.
        // We can trigger a state change to ensure loading completes and protected routes are checked again.
-       setLoading(true); 
+       setLoading(true);
        setTimeout(() => setLoading(false), 100); // Simulate async operation
        toast({ title: `Signed in with ${providerName} (Test Mode - Skipped)` });
        // Let ProtectedRoute handle redirection based on the mock user potentially set by onAuthStateChanged
@@ -198,3 +211,4 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
+
