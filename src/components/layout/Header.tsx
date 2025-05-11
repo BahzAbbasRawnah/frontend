@@ -4,7 +4,7 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetClose } from '@/components/ui/sheet';
-import { Menu, CodeXml, LogOut, UserCircle, LayoutDashboard, Loader2, Briefcase, Info } from 'lucide-react'; // Added Info icon
+import { Menu, CodeXml, LogOut, UserCircle, LayoutDashboard, Loader2, Briefcase, Info, MessageSquare, Bell, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
@@ -13,13 +13,21 @@ import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
 import type { Locale } from '@/i18n-config';
 import type { Dictionary } from '@/lib/getDictionaryClient';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 
 interface HeaderProps {
   lang: Locale;
   dictionary: Pick<Dictionary,
-    'siteName' | 'navServices' | 'navProjects' | 'navValueAI' | 'navContact' | 'navAboutUs' | // Added navAboutUs
+    'siteName' | 'navServices' | 'navProjects' | 'navValueAI' | 'navAboutUs' |
     'navDashboard' | 'navLogin' | 'navSignup' | 'navLogout' | 'requestServiceButton' |
-    'themeToggleLight' | 'themeToggleDark' | 'themeToggleSystem' | 'language' | 'english' | 'arabic'
+    'themeToggleLight' | 'themeToggleDark' | 'themeToggleSystem' | 'language' | 'english' | 'arabic' |
+    'navProfile' | 'navChat' | 'navNotifications' // New keys
   >;
 }
 
@@ -30,12 +38,19 @@ export default function Header({ lang, dictionary }: HeaderProps) {
   const [currentHash, setCurrentHash] = useState('');
   const [isClient, setIsClient] = useState(false);
 
-  const baseNavItems = [
+  const commonNavItems = [
     { href: '/services', labelKey: 'navServices', icon: Briefcase },
     { href: '/#projects', labelKey: 'navProjects' },
     { href: '/#value-ai', labelKey: 'navValueAI' },
-    { href: '/about', labelKey: 'navAboutUs', icon: Info }, // Added About Us link
+    { href: '/about', labelKey: 'navAboutUs', icon: Info },
     { href: '/#contact', labelKey: 'navContact' },
+  ];
+
+  const authenticatedNavItems = [
+    { href: '/dashboard', labelKey: 'navDashboard', icon: LayoutDashboard },
+    { href: '/profile', labelKey: 'navProfile', icon: User },
+    { href: '/chat', labelKey: 'navChat', icon: MessageSquare },
+    { href: '/notifications', labelKey: 'navNotifications', icon: Bell },
   ];
 
 
@@ -55,8 +70,8 @@ export default function Header({ lang, dictionary }: HeaderProps) {
   }, []);
 
   const navItems = user
-    ? [{ href: '/dashboard', labelKey: 'navDashboard', icon: LayoutDashboard }, ...baseNavItems]
-    : baseNavItems;
+    ? [...authenticatedNavItems, ...commonNavItems]
+    : commonNavItems;
 
   const getLocalizedPath = (path: string) => {
     if (path.startsWith('/#')) {
@@ -66,12 +81,11 @@ export default function Header({ lang, dictionary }: HeaderProps) {
   };
 
   const isLinkActive = (itemHref: string) => {
-    if (!isClient) return false; // Prevent running on server if it depends on client-only state
+    if (!isClient) return false; 
 
     const localizedItemHref = getLocalizedPath(itemHref);
     if (itemHref.includes('#')) {
       const [basePath, hash] = localizedItemHref.split('#');
-      // For homepage hash links, pathname might be just /en or /en/
       if ((pathname === `/${lang}` || pathname === `/${lang}/`) && itemHref.startsWith('/#')) {
          return currentHash === `#${hash}`;
       }
@@ -82,6 +96,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
 
 
   return (
+    <TooltipProvider>
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href={getLocalizedPath('/')} className="flex items-center gap-2">
@@ -90,7 +105,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
         </Link>
 
         <nav className="hidden md:flex items-center gap-1">
-          {navItems.map((item) => (
+          {commonNavItems.map((item) => ( // Common items for all users
             <Button
               key={item.labelKey}
               variant={isLinkActive(item.href) ? "secondary" : "ghost"}
@@ -108,6 +123,44 @@ export default function Header({ lang, dictionary }: HeaderProps) {
             </Button>
           ) : user ? (
             <>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant={isLinkActive('/dashboard') ? "secondary" : "ghost"} asChild className="ml-2">
+                    <Link href={getLocalizedPath('/dashboard')} className="flex items-center gap-2 px-3 py-2">
+                      <LayoutDashboard className="h-4 w-4" /> {dictionary.navDashboard}
+                    </Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{dictionary.navDashboard}</p></TooltipContent>
+              </Tooltip>
+              
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" asChild className={cn("ml-1", isLinkActive('/profile') ? "bg-secondary" : "")}>
+                    <Link href={getLocalizedPath('/profile')}><User className="h-5 w-5" /></Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{dictionary.navProfile}</p></TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" asChild className={cn("ml-1", isLinkActive('/chat') ? "bg-secondary" : "")}>
+                    <Link href={getLocalizedPath('/chat')}><MessageSquare className="h-5 w-5" /></Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{dictionary.navChat}</p></TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                   <Button variant="ghost" size="icon" asChild className={cn("ml-1", isLinkActive('/notifications') ? "bg-secondary" : "")}>
+                    <Link href={getLocalizedPath('/notifications')}><Bell className="h-5 w-5" /></Link>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>{dictionary.navNotifications}</p></TooltipContent>
+              </Tooltip>
+
               <Button variant="ghost" onClick={() => logout(lang)} className="flex items-center gap-2 ml-2 px-3 py-2">
                 <LogOut className="h-4 w-4" /> {dictionary.navLogout}
               </Button>
@@ -150,7 +203,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
               <span className="text-xl font-bold text-primary">{dictionary.siteName}</span>
             </Link>
             <nav className="flex flex-col gap-2">
-              {navItems.map((item) => (
+              {navItems.map((item) => ( // All items for mobile, including authenticated ones if user exists
                  <SheetClose asChild key={item.labelKey}>
                     <Button
                       variant={isLinkActive(item.href) ? "secondary" : "ghost"}
@@ -207,6 +260,6 @@ export default function Header({ lang, dictionary }: HeaderProps) {
         </Sheet>
       </div>
     </header>
+    </TooltipProvider>
   );
 }
-
