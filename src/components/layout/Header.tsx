@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -37,6 +38,22 @@ export default function Header({ lang, dictionary }: HeaderProps) {
   const [currentHash, setCurrentHash] = useState('');
   const [isClient, setIsClient] = useState(false);
 
+  // Moved useEffect hook before any conditional returns to adhere to Rules of Hooks.
+  useEffect(() => {
+    setIsClient(true); // Indicate that the component has mounted on the client
+    const updateHash = () => {
+      // window object is available in useEffect on the client-side
+      setCurrentHash(window.location.hash);
+    };
+    
+    updateHash(); // Set initial hash
+    window.addEventListener('hashchange', updateHash); // Listen for hash changes
+    
+    return () => {
+      window.removeEventListener('hashchange', updateHash); // Cleanup listener
+    };
+  }, []); // Empty dependency array ensures this runs once after initial render on client
+
   const isDashboardRoute = pathname.startsWith(`/${lang}/dashboard`);
 
   // If this is a dashboard route, this global Header instance should not render.
@@ -74,21 +91,6 @@ export default function Header({ lang, dictionary }: HeaderProps) {
   ];
   const mobileNavItems = user ? mobileAuthNavItems : commonNavItemsBase;
 
-
-  useEffect(() => {
-    setIsClient(true);
-    const updateHash = () => {
-      if (typeof window !== 'undefined') {
-       setCurrentHash(window.location.hash);
-      }
-    };
-    
-    updateHash(); // Initial call
-    window.addEventListener('hashchange', updateHash);
-    return () => {
-      window.removeEventListener('hashchange', updateHash);
-    };
-  }, []);
 
   const getLocalizedPath = (path: string) => {
     if (path.startsWith('/#')) {
@@ -265,3 +267,4 @@ export default function Header({ lang, dictionary }: HeaderProps) {
     </TooltipProvider>
   );
 }
+
