@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -107,7 +106,7 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                       <item.icon className="h-5 w-5" />
                       {state === 'expanded' && dictionary[item.labelKey as keyof typeof dictionary]}
                     </div>
-                    {state === 'expanded' && <ChevronDown className={cn("h-4 w-4 transition-transform", cmsOpen && "rotate-180")} />}
+                    {state === 'expanded' && <ChevronDown className={cn("h-4 w-4 transition-transform", cmsOpen && "rotate-180", lang === 'ar' ? 'mr-auto' : 'ml-auto')} />}
                   </SidebarMenuButton>
                   {cmsOpen && state === 'expanded' && (
                     <SidebarMenuSub>
@@ -130,7 +129,7 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                   )}
                 </SidebarGroup>
               ) : (
-                <SidebarMenuItem key={item.href}>
+                <SidebarMenuItem key={item.href!}>
                   <SidebarMenuButton
                     asChild
                     isActive={isLinkActive(item.href!)}
@@ -138,7 +137,7 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                     onClick={() => isMobile && setOpen(false)}
                     className={cn(lang === 'ar' ? "text-right" : "text-left")}
                   >
-                    <Link href={localizedPath(item.href!)} className={cn("flex items-center w-full gap-2", lang === 'ar' ? "flex-row-reverse" : "")}>
+                    <Link href={localizedPath(item.href!)} className={cn("flex items-center w-full gap-2", lang === 'ar' && "flex-row-reverse")}>
                       <item.icon className="h-5 w-5" />
                       {state === 'expanded' && dictionary[item.labelKey as keyof typeof dictionary]}
                     </Link>
@@ -152,3 +151,4 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
     </Sidebar>
   );
 }
+
