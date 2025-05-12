@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
-import DashboardPageHeader from '@/components/layout/DashboardPageHeader'; // New Header for Dashboard
+import DashboardPageHeader from '@/components/layout/DashboardPageHeader';
 import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import type { Locale } from '@/i18n-config';
 import { getDictionary } from '@/lib/getDictionary';
@@ -41,7 +41,8 @@ export default async function DashboardLayout({
     'language' |
     'english' |
     'arabic' |
-    'toggleMenu'
+    'toggleMenu' |
+    'footerCopyright' // Added for the dashboard footer
   > = {
     dashboardNavOverview: dictionary.dashboardNavOverview,
     dashboardNavProjects: dictionary.dashboardNavProjects,
@@ -65,7 +66,8 @@ export default async function DashboardLayout({
     language: dictionary.language,
     english: dictionary.english,
     arabic: dictionary.arabic,
-    toggleMenu: dictionary.toggleMenu || "Toggle Menu", // Add a fallback for toggleMenu
+    toggleMenu: dictionary.toggleMenu || "Toggle Menu",
+    footerCopyright: dictionary.footerCopyright, // Added for the dashboard footer
   };
 
 
@@ -74,11 +76,14 @@ export default async function DashboardLayout({
       <SidebarProvider defaultOpen>
         <div className="flex min-h-screen bg-background">
           <DashboardSidebar lang={lang} dictionary={necessaryDictKeys} />
-          <SidebarInset className="flex-1 flex flex-col overflow-hidden"> {/* Added overflow-hidden */}
+          <SidebarInset className="flex-1 flex flex-col overflow-hidden">
             <DashboardPageHeader lang={lang} dictionary={necessaryDictKeys} />
-            <main className="flex-1 p-4 sm:p-6 overflow-auto">
+            <main className="flex-1 p-4 sm:p-6 overflow-y-auto"> {/* Changed to overflow-y-auto */}
               {children}
             </main>
+            <footer className="p-4 text-center text-xs text-muted-foreground border-t border-border shrink-0 bg-card">
+              {necessaryDictKeys.footerCopyright.replace('{year}', new Date().getFullYear().toString())} - {necessaryDictKeys.siteName} Dashboard
+            </footer>
           </SidebarInset>
         </div>
       </SidebarProvider>
