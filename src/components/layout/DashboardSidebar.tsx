@@ -54,7 +54,7 @@ interface DashboardSidebarProps {
 
 export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const { state, setOpen, isMobile } = useSidebar(); // Removed open and toggleSidebar as they are not needed here anymore
+  const { state, setOpen, isMobile } = useSidebar(); 
   const [cmsOpen, setCmsOpen] = useState(false);
 
   const localizedPath = (path: string) => `/${lang}${path}`;
@@ -90,7 +90,6 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
           <CodeXml className="h-7 w-7 text-primary" />
           {state === 'expanded' && <span className="text-xl font-bold text-primary">{dictionary.siteName}</span>}
         </Link>
-        {/* Sidebar toggle button removed from here */}
       </SidebarHeader>
       <ScrollArea className="flex-1">
         <SidebarContent className="p-2">
@@ -100,11 +99,11 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                 <SidebarGroup key={item.labelKey}>
                   <SidebarMenuButton
                     onClick={() => setCmsOpen(!cmsOpen)}
-                    className="w-full justify-between"
+                    className={cn("w-full justify-between", lang === 'ar' ? "text-right" : "text-left")}
                     isActive={item.subItems?.some(sub => isLinkActive(sub.href))}
                     tooltip={state === 'collapsed' ? dictionary[item.labelKey as keyof typeof dictionary] : undefined}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className={cn("flex items-center gap-2", lang === 'ar' && "flex-row-reverse")}>
                       <item.icon className="h-5 w-5" />
                       {state === 'expanded' && dictionary[item.labelKey as keyof typeof dictionary]}
                     </div>
@@ -118,9 +117,10 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                             asChild
                             isActive={isLinkActive(subItem.href)}
                             onClick={() => isMobile && setOpen(false)}
+                            className={cn(lang === 'ar' ? "text-right" : "text-left")}
                           >
-                            <Link href={localizedPath(subItem.href)}>
-                              <subItem.icon className="me-2 rtl:ms-2 h-4 w-4" />
+                            <Link href={localizedPath(subItem.href)} className={cn("flex items-center w-full gap-2", lang === 'ar' ? "flex-row-reverse" : "")}>
+                              <subItem.icon className="h-4 w-4" />
                               {dictionary[subItem.labelKey as keyof typeof dictionary]}
                             </Link>
                           </SidebarMenuSubButton>
@@ -136,8 +136,9 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                     isActive={isLinkActive(item.href!)}
                     tooltip={state === 'collapsed' ? dictionary[item.labelKey as keyof typeof dictionary] : undefined}
                     onClick={() => isMobile && setOpen(false)}
+                    className={cn(lang === 'ar' ? "text-right" : "text-left")}
                   >
-                    <Link href={localizedPath(item.href!)}>
+                    <Link href={localizedPath(item.href!)} className={cn("flex items-center w-full gap-2", lang === 'ar' ? "flex-row-reverse" : "")}>
                       <item.icon className="h-5 w-5" />
                       {state === 'expanded' && dictionary[item.labelKey as keyof typeof dictionary]}
                     </Link>
@@ -151,4 +152,3 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
     </Sidebar>
   );
 }
-

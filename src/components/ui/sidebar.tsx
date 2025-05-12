@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -266,10 +267,10 @@ const SidebarTrigger = React.forwardRef<
   className,
   onClick: propOnClick,
   children,
-  asChild, // Destructure asChild
-  variant,  // Destructure variant
-  size,     // Destructure size
-  ...restProps // Remaining props
+  asChild, 
+  variant,  
+  size,     
+  ...restProps 
 }, ref) => {
   const { toggleSidebar } = useSidebar();
 
@@ -279,33 +280,27 @@ const SidebarTrigger = React.forwardRef<
   };
 
   if (asChild && React.isValidElement(children)) {
-    // `asChild` is consumed here.
-    // `variant` and `size` are not relevant for Slot itself; they are on the child Button.
-    // `className` from <SidebarTrigger> usage is passed to Slot.
-    // `restProps` are any other attributes on <SidebarTrigger> (e.g., data-*, aria-*).
     return (
       <Slot
         ref={ref}
         onClick={handleClick}
-        className={className} // className from <SidebarTrigger>
-        {...restProps}    // other attributes from <SidebarTrigger> to be passed to child
+        className={className} 
+        {...restProps}    
       >
         {children}
       </Slot>
     );
   }
 
-  // Default rendering: render an internal Button.
-  // Use variant/size if provided on <SidebarTrigger>, else default.
   return (
     <Button
       ref={ref}
       data-sidebar="trigger"
-      variant={variant || "ghost"} // Use passed variant or default "ghost"
-      size={size || "icon"}       // Use passed size or default "icon"
-      className={cn("h-7 w-7", className)} // Default classes + className from <SidebarTrigger>
+      variant={variant || "ghost"} 
+      size={size || "icon"}       
+      className={cn("h-7 w-7", className)} 
       onClick={handleClick}
-      {...restProps} // Pass other attributes. asChild is not in restProps or is false.
+      {...restProps} 
     >
       <PanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
@@ -541,7 +536,7 @@ const SidebarMenuItem = React.forwardRef<
 SidebarMenuItem.displayName = "SidebarMenuItem"
 
 const sidebarMenuButtonVariants = cva(
-  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
+  "peer/menu-button flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-sm outline-none ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground disabled:pointer-events-none disabled:opacity-50 group-has-[[data-sidebar=menu-action]]/menu-item:pr-8 aria-disabled:pointer-events-none aria-disabled:opacity-50 data-[active=true]:bg-sidebar-accent data-[active=true]:font-medium data-[active=true]:text-sidebar-accent-foreground data-[state=open]:hover:bg-sidebar-accent data-[state=open]:hover:text-sidebar-accent-foreground group-data-[collapsible=icon]:!size-8 group-data-[collapsible=icon]:!p-2 [&>span:last-child]:truncate [&>svg]:size-4 [&>svg]:shrink-0",
   {
     variants: {
       variant: {
