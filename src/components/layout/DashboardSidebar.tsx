@@ -54,7 +54,7 @@ interface DashboardSidebarProps {
 export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { state, setOpen, isMobile } = useSidebar(); 
-  const [cmsOpen, setCmsOpen] = useState(false);
+  const [cmsOpen, setCmsOpen] = useState(pathname.startsWith(`/${lang}/dashboard/cms`));
 
   const localizedPath = (path: string) => `/${lang}${path}`;
 
@@ -106,7 +106,7 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                       <item.icon className="h-5 w-5" />
                       {state === 'expanded' && dictionary[item.labelKey as keyof typeof dictionary]}
                     </div>
-                    {state === 'expanded' && <ChevronDown className={cn("h-4 w-4 transition-transform", cmsOpen && "rotate-180", lang === 'ar' ? 'mr-auto' : 'ml-auto')} />}
+                    {state === 'expanded' && <ChevronDown className={cn("h-4 w-4 transition-transform", cmsOpen && "rotate-180")} />}
                   </SidebarMenuButton>
                   {cmsOpen && state === 'expanded' && (
                     <SidebarMenuSub>
@@ -151,4 +151,3 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
     </Sidebar>
   );
 }
-
