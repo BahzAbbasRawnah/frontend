@@ -17,7 +17,6 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import {
   LayoutDashboard,
   Briefcase,
@@ -31,8 +30,6 @@ import {
   Info,
   ChevronDown,
   CodeXml,
-  PanelLeftClose,
-  PanelRightClose
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Locale } from '@/i18n-config';
@@ -57,7 +54,7 @@ interface DashboardSidebarProps {
 
 export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarProps) {
   const pathname = usePathname();
-  const { state, setOpen, open, isMobile, toggleSidebar } = useSidebar();
+  const { state, setOpen, isMobile } = useSidebar(); // Removed open and toggleSidebar as they are not needed here anymore
   const [cmsOpen, setCmsOpen] = useState(false);
 
   const localizedPath = (path: string) => `/${lang}${path}`;
@@ -85,21 +82,15 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
     return pathname === localizedItemHref || pathname.startsWith(`${localizedItemHref}/`);
   };
   
-  const SidebarToggle = lang === 'ar' ? PanelLeftClose : PanelRightClose;
-
 
   return (
-    <Sidebar collapsible="icon" side={lang === 'ar' ? 'right' : 'left'} className="border-border">
+    <Sidebar collapsible={isMobile ? "offcanvas" : "icon"} side={lang === 'ar' ? 'right' : 'left'} className="border-border">
       <SidebarHeader className="flex items-center justify-between p-4">
         <Link href={localizedPath('/')} className="flex items-center gap-2" onClick={() => isMobile && setOpen(false)}>
           <CodeXml className="h-7 w-7 text-primary" />
           {state === 'expanded' && <span className="text-xl font-bold text-primary">{dictionary.siteName}</span>}
         </Link>
-        {state === 'expanded' && !isMobile && (
-          <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-label="Toggle sidebar">
-            <SidebarToggle className="h-5 w-5" />
-          </Button>
-        )}
+        {/* Sidebar toggle button removed from here */}
       </SidebarHeader>
       <ScrollArea className="flex-1">
         <SidebarContent className="p-2">
@@ -160,3 +151,4 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
     </Sidebar>
   );
 }
+

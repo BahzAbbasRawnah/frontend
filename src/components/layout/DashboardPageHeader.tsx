@@ -11,8 +11,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { SidebarTrigger } from '@/components/ui/sidebar';
-import { CodeXml, LogOut, User, Settings, Bell, MessageSquare, PanelLeft, Loader2 } from 'lucide-react';
+import { SidebarTrigger, useSidebar } from '@/components/ui/sidebar';
+import { CodeXml, LogOut, User, Settings, Bell, MessageSquare, PanelLeft, Loader2, PanelRight } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { ThemeToggle } from './ThemeToggle';
 import { LanguageSwitcher } from './LanguageSwitcher';
@@ -42,17 +42,18 @@ interface DashboardPageHeaderProps {
 export default function DashboardPageHeader({ lang, dictionary }: DashboardPageHeaderProps) {
   const { user, loading, logout } = useAuth();
   const localizedPath = (path: string) => `/${lang}${path}`;
+  const { toggleSidebar } = useSidebar();
+  const ToggleIcon = lang === 'ar' ? PanelRight : PanelLeft;
+
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center justify-between gap-4 border-b bg-card px-4 sm:px-6 shrink-0">
       {/* Left side: Mobile trigger and/or Title */}
       <div className="flex items-center gap-2">
-        <SidebarTrigger asChild className="md:hidden">
-          <Button size="icon" variant="outline">
-            <PanelLeft className="h-5 w-5" />
-            <span className="sr-only">{dictionary.toggleMenu}</span>
-          </Button>
-        </SidebarTrigger>
+        <Button size="icon" variant="outline" onClick={toggleSidebar} aria-label={dictionary.toggleMenu}>
+          <ToggleIcon className="h-5 w-5" />
+          <span className="sr-only">{dictionary.toggleMenu}</span>
+        </Button>
         <Link href={localizedPath('/dashboard')} className="flex items-center gap-2">
           <CodeXml className="h-7 w-7 text-primary" />
           <span className="text-xl font-bold text-primary hidden md:inline-block">{dictionary.siteName}</span>
