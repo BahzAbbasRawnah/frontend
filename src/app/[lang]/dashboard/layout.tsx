@@ -1,13 +1,11 @@
-
 import type { ReactNode } from 'react';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import DashboardSidebar from '@/components/layout/DashboardSidebar';
-import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
+import DashboardPageHeader from '@/components/layout/DashboardPageHeader'; // New Header for Dashboard
+import { SidebarProvider, SidebarInset } from '@/components/ui/sidebar';
 import type { Locale } from '@/i18n-config';
 import { getDictionary } from '@/lib/getDictionary';
 import type { Dictionary } from '@/lib/getDictionary';
-import { Button } from '@/components/ui/button';
-import { PanelLeft } from 'lucide-react';
 
 export default async function DashboardLayout({
   children,
@@ -19,8 +17,8 @@ export default async function DashboardLayout({
   const { lang } = params;
   const dictionary = await getDictionary(lang);
 
-  // Pick only necessary dictionary keys for DashboardSidebar and layout
-  const sidebarDictionary: Pick<Dictionary,
+  // Pick only necessary dictionary keys for DashboardSidebar, DashboardPageHeader and layout
+  const necessaryDictKeys: Pick<Dictionary,
     'dashboardNavOverview' |
     'dashboardNavProjects' |
     'dashboardNavServices' |
@@ -30,7 +28,20 @@ export default async function DashboardLayout({
     'dashboardNavCMSContact' |
     'dashboardNavCMSAbout' |
     'dashboardNavSettings' |
-    'siteName'
+    'siteName' |
+    'dashboardTitle' |
+    'navLogout' |
+    'navLogin' |
+    'navProfile' |
+    'navChat' |
+    'navNotifications' |
+    'themeToggleDark' |
+    'themeToggleLight' |
+    'themeToggleSystem' |
+    'language' |
+    'english' |
+    'arabic' |
+    'toggleMenu'
   > = {
     dashboardNavOverview: dictionary.dashboardNavOverview,
     dashboardNavProjects: dictionary.dashboardNavProjects,
@@ -42,25 +53,29 @@ export default async function DashboardLayout({
     dashboardNavCMSAbout: dictionary.dashboardNavCMSAbout,
     dashboardNavSettings: dictionary.dashboardNavSettings,
     siteName: dictionary.siteName,
+    dashboardTitle: dictionary.dashboardTitle,
+    navLogout: dictionary.navLogout,
+    navLogin: dictionary.navLogin,
+    navProfile: dictionary.navProfile,
+    navChat: dictionary.navChat,
+    navNotifications: dictionary.navNotifications,
+    themeToggleDark: dictionary.themeToggleDark,
+    themeToggleLight: dictionary.themeToggleLight,
+    themeToggleSystem: dictionary.themeToggleSystem,
+    language: dictionary.language,
+    english: dictionary.english,
+    arabic: dictionary.arabic,
+    toggleMenu: dictionary.toggleMenu || "Toggle Menu", // Add a fallback for toggleMenu
   };
 
 
   return (
     <ProtectedRoute lang={lang}>
       <SidebarProvider defaultOpen>
-        <div className="flex min-h-screen">
-          <DashboardSidebar lang={lang} dictionary={sidebarDictionary} />
-          <SidebarInset className="flex-1 flex flex-col">
-            <header className="sticky top-0 z-40 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6 py-4 md:hidden">
-              {/* Mobile Sidebar Trigger - Placed inside SidebarInset for proper layout flow */}
-              <SidebarTrigger asChild>
-                <Button size="icon" variant="outline">
-                  <PanelLeft className="h-5 w-5" />
-                  <span className="sr-only">Toggle Menu</span>
-                </Button>
-              </SidebarTrigger>
-               <h1 className="text-lg font-semibold text-primary">{dictionary.dashboardTitle}</h1>
-            </header>
+        <div className="flex min-h-screen bg-background">
+          <DashboardSidebar lang={lang} dictionary={necessaryDictKeys} />
+          <SidebarInset className="flex-1 flex flex-col overflow-hidden"> {/* Added overflow-hidden */}
+            <DashboardPageHeader lang={lang} dictionary={necessaryDictKeys} />
             <main className="flex-1 p-4 sm:p-6 overflow-auto">
               {children}
             </main>

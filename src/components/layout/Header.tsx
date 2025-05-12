@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -40,6 +39,12 @@ export default function Header({ lang, dictionary }: HeaderProps) {
 
   const isDashboardRoute = pathname.startsWith(`/${lang}/dashboard`);
 
+  // If this is a dashboard route, this global Header instance should not render.
+  // DashboardLayout will provide its own header.
+  if (isDashboardRoute) {
+    return null;
+  }
+
   const commonNavItemsBase = [
     { href: '/services', labelKey: 'navServices', icon: Briefcase },
     { href: '/#projects', labelKey: 'navProjects', icon: Settings }, // Placeholder icon, update if needed
@@ -48,8 +53,8 @@ export default function Header({ lang, dictionary }: HeaderProps) {
     { href: '/#contact', labelKey: 'navContact', icon: MessageSquare }, // Placeholder icon
   ];
 
-  // Filter out common nav items if on a dashboard route for desktop
-  const commonNavItems = isDashboardRoute ? [] : commonNavItemsBase;
+  // Common nav items should not be filtered here anymore as this header won't show on dashboard.
+  const commonNavItems = commonNavItemsBase;
 
 
   const authenticatedNavItemsDesktop = [
@@ -149,8 +154,8 @@ export default function Header({ lang, dictionary }: HeaderProps) {
                       <Link href={getLocalizedPath(item.href)} className="flex items-center gap-2 px-3 py-2">
                         <item.icon className="h-4 w-4" />
                         {/* Show label only for the main dashboard link on desktop, icons for others */}
-                        {item.href === '/dashboard' || !isDashboardRoute ? dictionary[item.labelKey as keyof typeof dictionary] : null}
-                        {isDashboardRoute && item.href !== '/dashboard' && <span className="sr-only">{dictionary[item.labelKey as keyof typeof dictionary]}</span>}
+                        {item.href === '/dashboard' ? dictionary[item.labelKey as keyof typeof dictionary] : null}
+                        {item.href !== '/dashboard' && <span className="sr-only">{dictionary[item.labelKey as keyof typeof dictionary]}</span>}
                       </Link>
                     </Button>
                   </TooltipTrigger>
@@ -173,7 +178,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
               </Button>
             </>
           )}
-           {!user && !isDashboardRoute && ( // Hide if on dashboard or logged in
+           {!user && ( 
              <Button asChild className="ml-2 bg-primary hover:bg-primary/90 text-primary-foreground">
                 <Link href={getLocalizedPath('/#service-request')}>{dictionary.requestServiceButton}</Link>
             </Button>
@@ -186,8 +191,7 @@ export default function Header({ lang, dictionary }: HeaderProps) {
           </div>
         </nav>
 
-        {/* Mobile Navigation Trigger - Only show if NOT on a dashboard route */}
-        {!isDashboardRoute && (
+        {/* Mobile Navigation Trigger */}
           <Sheet>
             <SheetTrigger asChild className="md:hidden">
               <Button variant="ghost" size="icon">
@@ -256,18 +260,6 @@ export default function Header({ lang, dictionary }: HeaderProps) {
               </nav>
             </SheetContent>
           </Sheet>
-        )}
-        {/* Language and Theme toggles for dashboard desktop view if main nav is hidden */}
-         {isDashboardRoute && (
-            <div className="hidden md:flex items-center gap-1 ml-auto">
-                 <div className="ml-2">
-                    <ThemeToggle dictionary={{themeToggleDark: dictionary.themeToggleDark, themeToggleLight: dictionary.themeToggleLight, themeToggleSystem: dictionary.themeToggleSystem}} />
-                </div>
-                <div className="ml-1">
-                    <LanguageSwitcher currentLocale={lang} dictionary={{language: dictionary.language, english: dictionary.english, arabic: dictionary.arabic }} />
-                </div>
-            </div>
-        )}
       </div>
     </header>
     </TooltipProvider>
