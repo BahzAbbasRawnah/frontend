@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -10,7 +11,6 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
   SidebarGroup,
-  SidebarGroupLabel,
   SidebarMenuSub,
   SidebarMenuSubButton,
   useSidebar,
@@ -98,7 +98,9 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                 <SidebarGroup key={item.labelKey}>
                   <SidebarMenuButton
                     onClick={() => setCmsOpen(!cmsOpen)}
-                    className={cn("w-full justify-between", lang === 'ar' ? "text-right" : "text-left")}
+                    // Removed justify-between, base style is flex items-center. Added w-full.
+                    // text-right/left for potential non-flex children or tooltips.
+                    className={cn("w-full", lang === 'ar' ? "text-right" : "text-left")} 
                     isActive={item.subItems?.some(sub => isLinkActive(sub.href))}
                     tooltip={state === 'collapsed' ? dictionary[item.labelKey as keyof typeof dictionary] : undefined}
                   >
@@ -106,7 +108,13 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
                       <item.icon className="h-5 w-5" />
                       {state === 'expanded' && dictionary[item.labelKey as keyof typeof dictionary]}
                     </div>
-                    {state === 'expanded' && <ChevronDown className={cn("h-4 w-4 transition-transform", cmsOpen && "rotate-180")} />}
+                    {state === 'expanded' && (
+                      <ChevronDown className={cn(
+                        "h-4 w-4 transition-transform",
+                        cmsOpen && "rotate-180",
+                        lang === 'ar' ? "mr-auto" : "ml-auto" // Use auto margin to push chevron
+                      )} />
+                    )}
                   </SidebarMenuButton>
                   {cmsOpen && state === 'expanded' && (
                     <SidebarMenuSub>
@@ -151,3 +159,4 @@ export default function DashboardSidebar({ lang, dictionary }: DashboardSidebarP
     </Sidebar>
   );
 }
+
